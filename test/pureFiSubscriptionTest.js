@@ -9,8 +9,9 @@ const assert = chai.assert;
 chai.use(require('bn-chai')(BN));
 chai.use(require('chai-match'));
 const EthCrypto = require("eth-crypto");
-const { test } = require('chai/lib/chai/utils');
-const { convertSecretKey } = require('ed2curve');
+const { ethers } = require("ethers");
+// const { test } = require('chai/lib/chai/utils');
+// const { convertSecretKey } = require('ed2curve');
 
 const PureFiIssuerRegistry = artifacts.require('PureFiIssuerRegistry');
 const PureFiRouter = artifacts.require('PureFiRouter');
@@ -75,7 +76,7 @@ contract('PureFi Subscription Test', (accounts) => {
     let subscriptionContract;
     let burnAddress;
     let tokenBuyer;
-
+    let signer;
 
     before(async () => {
         burnAddress = accounts[9];
@@ -104,7 +105,6 @@ contract('PureFi Subscription Test', (accounts) => {
         await subscriptionContract.initialize(accounts[0],pureFiToken.address,lockContract.address,tokenBuyer.address,burnAddress);
         await lockContract.grantRole.sendTransaction(web3.utils.keccak256('UFI_TRUSTED_PAYMENT_SERVICE'),subscriptionContract.address);
 
-        
     });
 
     it('set tiers', async () => {
@@ -162,9 +162,10 @@ contract('PureFi Subscription Test', (accounts) => {
 
         let tierToBuy = toBN(1);
         let buyer = accounts[1];
+        console.log("Buyer ",accounts[1]);
         //-----------------------
         //send 1000 tokens so that function has to buy less
-        await pureFiToken.transfer(buyer,toBN(1000).mul(decimals),{from:accounts[0]});
+        await pureFiToken.transfer(buyer,toBN(1000).mul(decimals),{from:"0xcE14bda2d2BceC5247C97B65DBE6e6E570c4Bb6D"});
         //-----------------------
         let tierData = await subscriptionContract.getTierData.call(tierToBuy);
 
