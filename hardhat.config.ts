@@ -22,7 +22,12 @@ const config: HardhatUserConfig = {
     },
     sepolia: {
       url: "https://ethereum-sepolia-rpc.publicnode.com"
-    }
+    },
+    arbitrumSepolia: {
+      url: 'https://sepolia-rollup.arbitrum.io/rpc',
+      chainId: 421614,
+      //accounts: [Sepolia_TESTNET_PRIVATE_KEY]
+    },
   }
   
 
