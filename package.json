@@ -20,5 +20,8 @@
     "hardhat-contract-sizer": "^2.6.1",
     "hardhat-storage-layout": "^0.1.7",
     "typescript": "^5.0.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
   }
 }
