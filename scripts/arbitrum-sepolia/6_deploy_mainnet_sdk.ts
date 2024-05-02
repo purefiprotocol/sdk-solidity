@@ -1,10 +1,8 @@
 import {ethers} from "hardhat";
 import hre from "hardhat";
 import {BigNumber, utils} from "ethers";
-import {deployTestTokenFaucet} from "./2_deploy_testnet_faucet_token";
 
 //**** PUREFI SDK DEPLOYMENT SCRIPT *******//
-//**** TESTNET ONLY                 *******//
 
 // params for verifier
 
@@ -43,24 +41,29 @@ const PROFIT_COLLECTION_ADDRESS = "0xcE14bda2d2BceC5247C97B65DBE6e6E570c4Bb6D";
 
 async function main() {
     console.log(deployer.address)
-    const MockFiatTokenFactory = await ethers.getContractFactory("MockUSD");
-    const MockFiat = await MockFiatTokenFactory.connect(deployer).deploy("Test USD Coin", "TUSD");
 
-    await MockFiat.deployed();
-
-    const UFI_TOKEN = MockFiat.address;
-
-    console.log('MockStableCoin:', UFI_TOKEN);
-
-    await deployTestTokenFaucet(MockFiat.address);
+    let addressOfUSDC = "";
 
     if (hre.network.name === "hardhat") {
         const accounts = await hre.ethers.getSigners();
         await (await accounts[0].sendTransaction({
             to: deployer.address,
             value: 10n ** 20n
-        })).wait(1)
+        })).wait(1);
     }
+
+    if (hre.network.name === "arbitrum") {
+        addressOfUSDC = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
+    } else if (hre.network.name === "optimism") {
+        addressOfUSDC = "0x0b2c639c533813f4aa9d7837caf62653d097ff85";
+    } else if (hre.network.name === "base") {
+        addressOfUSDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+    } else {
+        throw new Error("Wrong network")
+    }
+
+    console.log('StableCoin:', addressOfUSDC);
+
 
     if (PROOF.length == 0 || ADMIN.length == 0) {
         throw new Error('ADMIN or PROOF variable is missed');
@@ -194,7 +197,7 @@ async function main() {
     const sub_service = await ethers.getContractAt("PureFiSubscriptionService", sub_service_proxy.address);
     await (await sub_service.connect(deployer).initialize(
         ADMIN,
-        UFI_TOKEN,
+        addressOfUSDC,
         token_buyer.address,
         PROFIT_COLLECTION_ADDRESS
     )).wait();
