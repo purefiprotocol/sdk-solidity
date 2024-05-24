@@ -11,6 +11,8 @@ import "./interfaces/IPureFiIssuerRequestResolver.sol";
 
 contract PureFiSubscriptionService is AccessControlUpgradeable, AutomationCompatible {
 
+    bytes32 public constant EXTERNAL_SUBSCRIBER = keccak256("EXTERNAL_SUBSCRIBER");   
+
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     uint256 private constant P100 = 100; //100% denominator
@@ -109,10 +111,12 @@ contract PureFiSubscriptionService is AccessControlUpgradeable, AutomationCompat
     1. changed subscriptionOwner call to treat both sender and receiver in type2 messages
     2000013 -> 2000014
     1. fixed issue with unsubscribe() when user subscribed after latest profit distribution (resulted in tx.revert)
+    2000014 -> 2000015
+    1. added EXTERNAL_SUBSCRIBER role so that it can assign subscriptions with 0 USD price. 
     */
     function version() public pure returns(uint32){
         // 000.000.000 - Major.minor.internal
-        return 2000014;
+        return 2000015;
     }
 
     function initialize(address _admin, address _ufi, address _tokenBuyer, address _profitCollectionAddress) public initializer{
@@ -177,10 +181,14 @@ contract PureFiSubscriptionService is AccessControlUpgradeable, AutomationCompat
     }
 
     function subscribe(uint8 _tier) external payable {
+        require(tiers[_tier].priceInUSD > 0, 'Invalid tier provided');
        _subscribe(_tier, msg.sender);
     }
     
     function subscribeFor(uint8 _tier, address _subscriber) external payable {
+        if(tiers[_tier].priceInUSD == 0){
+            require(hasRole(EXTERNAL_SUBSCRIBER, msg.sender),"Permission denied");
+        } 
        _subscribe(_tier, _subscriber);
     }
 
@@ -458,7 +466,6 @@ contract PureFiSubscriptionService is AccessControlUpgradeable, AutomationCompat
     }
 
     function _subscribe(uint8 _tier, address _subscriber) private {
-        require(tiers[_tier].priceInUSD > 0, 'Invalid tier provided');
         require(tiers[_tier].isactive > 0, "Tier is not active. Can't subscribe");
 
         uint256 tokensLeftFromCurrentSubscription = 0;

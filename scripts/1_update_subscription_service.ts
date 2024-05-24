@@ -3,8 +3,8 @@ import hre from "hardhat";
 import { BigNumber, utils } from "ethers";
 
 //BSC
-const PROXY_ADMIN = "0x3958341e490B8a8075F6C84de68563f3586840D9";
-const SUBSCRIPTION_SERVICE = "0xBbC3Df0Af62b4a469DD44c1bc4e8804268dB1ea3";
+// const PROXY_ADMIN = "0x3958341e490B8a8075F6C84de68563f3586840D9";
+// const SUBSCRIPTION_SERVICE = "0xBbC3Df0Af62b4a469DD44c1bc4e8804268dB1ea3";
 //MAINNET
 // const PROXY_ADMIN = "0x3f11558964F51Db1AF18825D0f4F8D7FC8bb6ac7";
 // const SUBSCRIPTION_SERVICE = "0xbA5B61DFa9c182E202354F66Cb7f8400484d7071";
@@ -23,7 +23,8 @@ async function main(){
     const SubscriptionService = await ethers.getContractFactory("PureFiSubscriptionService");
     const subServiceMasterCopy = await SubscriptionService.deploy();
 
-    await subServiceMasterCopy.deployed();
+    let receipt = await subServiceMasterCopy.deployed();
+    console.log("deployer addr=",receipt.deployTransaction.from); 
     console.log("SubscriptionService master copy address : ", subServiceMasterCopy.address);
 
     const subscriptionContractProxy = await ethers.getContractAt("PureFiSubscriptionService", SUBSCRIPTION_SERVICE);
@@ -38,10 +39,15 @@ async function main(){
 
     //add business subscription
      
-    // let yearTS = 86400*365;
+    let yearTS = 86400*365;
     // const decimals = BigNumber.from(10).pow(18);
     // let USDdecimals = decimals;//10^18 // for current contract implementation
-    // await(await subscriptionContractProxy.setTierData(10,yearTS,BigNumber.from(10000).mul(USDdecimals),0,1000,10000)).wait();
+    await(await subscriptionContractProxy.setTierData(20,yearTS,BigNumber.from(0),0,1,10)).wait();
+
+    let externalSubscriberRole = await subscriptionContractProxy.EXTERNAL_SUBSCRIBER();
+    let myAddress = (await hre.ethers.getSigners())[0];
+    console.log("myAddress=",myAddress);
+    await subscriptionContractProxy.grantRole(externalSubscriberRole,myAddress);
     // console.log("subscription added");
 
 }
