@@ -59,7 +59,7 @@ const config: HardhatUserConfig = {
     bsc : {
       url : bscnode,
       gas: 5000000,
-      gasPrice: 5000000000,
+      gasPrice: 2000000000,
       accounts : { mnemonic : mnemonic }
     },
 
