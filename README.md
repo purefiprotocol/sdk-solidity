@@ -1,4 +1,4 @@
-# PureFi SDK for Solidity (Version 3)
+# PureFi SDK for Solidity (Version 4)
 
 SDK is dedicated for the EVM based networks. Provides KYC and AML verifications for smart contracts based vaults, funds and DeFi protocols. 
 
@@ -29,14 +29,14 @@ Live Demo is available for both Ethereum and Binance Chain and is built upon the
 | Contract name | contract address |
 | ----------- | ----------- |
 | PureFi Token | 0xcDa4e840411C00a614aD9205CAEC807c7458a0E3 |
-| PureFi Verifier (v3) | 0xBa8bFC223Cb1BCDcdd042494FF2C07b167DDC6CA |
+| PureFi Verifier (v4) | 0xBa8bFC223Cb1BCDcdd042494FF2C07b167DDC6CA |
 | PureFi Subscription | 0xbA5B61DFa9c182E202354F66Cb7f8400484d7071 |
 | PureFi Verifier (v2) - Deprecated | 0x714Ca4B117558a043c41f7225b12cB53eF80416e |
 ### Binance Chain
 | Contract name | contract address |
 | ----------- | ----------- 
 | PureFi Token | 0xe2a59D5E33c6540E18aAA46BF98917aC3158Db0D |
-| PureFi Verifier (V3) | 0x62351A3F17a2c4640f45907faB74901a37FaD3C2 |
+| PureFi Verifier (V4) | 0x62351A3F17a2c4640f45907faB74901a37FaD3C2 |
 | PureFi Subscription | 0xBbC3Df0Af62b4a469DD44c1bc4e8804268dB1ea3 |
 | PureFi Verifier (V2) - Deprecated| 0x3346cc4b6F44349EAC447b1C8392b2a472a20F27 |
 
