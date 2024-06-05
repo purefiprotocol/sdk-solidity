@@ -15,6 +15,11 @@ SDK provides 3 different verification methods:
 2. PureFiVerifier: removed default support for whitelisted credentials. PureFiWhitelist still can be used directly.
 2. PureFiContext: upgraded to match PureFiVerifier changes + added helper functions and default rules for V2 compatible implementations. 
 
+## ChangeList V3->V4
+ 1. Introduced a check for msg.sender for verification that the caller contract matches receiver or sender in type2
+ 2. Added receiver field in type1 package, important for tracking verifications under business subscription with fixed receiver contract. 
+ 3. Introduced verification for spent packages. "Doublespending" of purefi credentials is not allowed anymore, which is important for "cumnulative limit" verifications. Incoming `purefipackage.sessionid` is now stored in the internal structure (storage based), which is periodically cleaned. 
+
 *IMPORTANT!* Transaction payload verification is NOT supported by the PureFi Issuer as of today (and thus - can not be used with the Interactive mode currently) and will be enabled with the release of the Transaction Monitoring tool. ETA TBA. 
 
 ## Integration example and live demo
