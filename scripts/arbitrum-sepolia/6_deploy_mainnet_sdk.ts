@@ -52,7 +52,7 @@ async function main() {
         })).wait(1);
     }
 
-    if (hre.network.name === "arbitrum") {
+    if (hre.network.name === "arbitrum" || hre.network.name === "hardhat") {
         addressOfUSDC = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
     } else if (hre.network.name === "optimism") {
         addressOfUSDC = "0x0b2c639c533813f4aa9d7837caf62653d097ff85";
