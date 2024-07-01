@@ -6,6 +6,7 @@ import hre from "hardhat";
 const ISSUER_REGISTRY = "0x9f5346721884ECA7F6A99D87866eb6323493AA33";
 const WHITELIST = "0x4C194a586935B8A29adaf37E86A809279536d865";
 const PROXY_ADMIN_ADDRESS = "0x3f11558964F51Db1AF18825D0f4F8D7FC8bb6ac7";
+const VERIFIER_ADDRESS = '0xBa8bFC223Cb1BCDcdd042494FF2C07b167DDC6CA';
 // params 
 
 const PARAM_DEFAULT_AML_GRACETIME_KEY = 3;
@@ -29,20 +30,23 @@ async function main(){
 
     console.log("Proxy admin : ", proxy_admin.address);
 
-    // const verifierMasterCopy = await VERIFIER.deploy();
-    // await verifierMasterCopy.deployed();
-    // console.log("Verififer master copy : ", verifierMasterCopy.address);
+    const verifierMasterCopy = await VERIFIER.deploy();
+    await verifierMasterCopy.deployed();
+    console.log("Verififer master copy : ", verifierMasterCopy.address);
 
     // const verifierProxy = await PROXY.deploy(verifierMasterCopy.address, proxy_admin.address, '0x');
     // await verifierProxy.deployed();
 
+    await(await proxy_admin.upgrade(VERIFIER_ADDRESS, verifierMasterCopy.address)).wait();
+
     // console.log("VerifierV3 address : ", verifierProxy.address);
 
     // const verifier = await ethers.getContractAt("PureFiVerifier", verifierProxy.address);
-    const verifier = await ethers.getContractAt("PureFiVerifier", '0xBa8bFC223Cb1BCDcdd042494FF2C07b167DDC6CA');
+    const verifier = await ethers.getContractAt("PureFiVerifier", VERIFIER_ADDRESS);
     // await verifier.initialize(ISSUER_REGISTRY, WHITELIST);
 
     // set uint params
+    console.log("Verifier version: ", (await verifier.version()).toString());
 
     await verifier.setUint256(PARAM_DEFAULT_AML_GRACETIME_KEY, DEFAULT_GRACETIME_VALUE );
 
@@ -52,7 +56,7 @@ async function main(){
 
     await verifier.setUint256(PARAM_TYPE1_DEFAULT_KYCAML_RULE, DEFAULT_KYCAML_RULE);
 
-    console.log("Verifier version: ", (await verifier.version()).toString());
+    
     console.log("completed");
 }
 
