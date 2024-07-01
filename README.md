@@ -1,4 +1,4 @@
-# PureFi SDK for Solidity (Version 3)
+# PureFi SDK for Solidity (Version 4)
 
 SDK is dedicated for the EVM based networks. Provides KYC and AML verifications for smart contracts based vaults, funds and DeFi protocols. 
 
@@ -15,6 +15,11 @@ SDK provides 3 different verification methods:
 2. PureFiVerifier: removed default support for whitelisted credentials. PureFiWhitelist still can be used directly.
 2. PureFiContext: upgraded to match PureFiVerifier changes + added helper functions and default rules for V2 compatible implementations. 
 
+## ChangeList V3->V4
+ 1. Introduced a check for msg.sender for verification that the caller contract matches receiver or sender in type2
+ 2. Added receiver field in type1 package, important for tracking verifications under business subscription with fixed receiver contract. 
+ 3. Introduced verification for spent packages. "Doublespending" of purefi credentials is not allowed anymore, which is important for "cumnulative limit" verifications. Incoming `purefipackage.sessionid` is now stored in the internal structure (storage based), which is periodically cleaned. 
+
 *IMPORTANT!* Transaction payload verification is NOT supported by the PureFi Issuer as of today (and thus - can not be used with the Interactive mode currently) and will be enabled with the release of the Transaction Monitoring tool. ETA TBA. 
 
 ## Integration example and live demo
@@ -29,14 +34,14 @@ Live Demo is available for both Ethereum and Binance Chain and is built upon the
 | Contract name | contract address |
 | ----------- | ----------- |
 | PureFi Token | 0xcDa4e840411C00a614aD9205CAEC807c7458a0E3 |
-| PureFi Verifier (v3) | 0xBa8bFC223Cb1BCDcdd042494FF2C07b167DDC6CA |
+| PureFi Verifier (v4) | 0xBa8bFC223Cb1BCDcdd042494FF2C07b167DDC6CA |
 | PureFi Subscription | 0xbA5B61DFa9c182E202354F66Cb7f8400484d7071 |
 | PureFi Verifier (v2) - Deprecated | 0x714Ca4B117558a043c41f7225b12cB53eF80416e |
 ### Binance Chain
 | Contract name | contract address |
 | ----------- | ----------- 
 | PureFi Token | 0xe2a59D5E33c6540E18aAA46BF98917aC3158Db0D |
-| PureFi Verifier (V3) | 0x62351A3F17a2c4640f45907faB74901a37FaD3C2 |
+| PureFi Verifier (V4) | 0x62351A3F17a2c4640f45907faB74901a37FaD3C2 |
 | PureFi Subscription | 0xBbC3Df0Af62b4a469DD44c1bc4e8804268dB1ea3 |
 | PureFi Verifier (V2) - Deprecated| 0x3346cc4b6F44349EAC447b1C8392b2a472a20F27 |
 
