@@ -20,6 +20,8 @@ const PARAM_TYPE1_DEFAULT_KYCAML_RULE = 6;
 const PARAM_CLEANING_TOLERANCE = 10;
 
 const PROXY_ADMIN_ADDRESS = "";
+const ISSER_REGISTRY_MASTERCOPY_ADDRESS = "";
+const ISSER_REGISTRY_ADDRESS = "";
 const decimals = BigNumber.from(10).pow(18);
 
 
@@ -52,7 +54,7 @@ async function main() {
         })).wait(1);
     }
 
-    if (hre.network.name === "arbitrum") {
+    if (hre.network.name === "arbitrum" || hre.network.name === "hardhat") {
         addressOfUSDC = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
     } else if (hre.network.name === "optimism") {
         addressOfUSDC = "0x0b2c639c533813f4aa9d7837caf62653d097ff85";
@@ -87,7 +89,6 @@ async function main() {
         console.log("Deploying new proxy admin...");
         actual_proxy_admin = await PPROXY_ADMIN.connect(deployer).deploy();
         await actual_proxy_admin.deployed();
-        //await new Promise(resolve => setTimeout(resolve, 3000)); // 3 sec
     }
     const proxy_admin = actual_proxy_admin
 
@@ -96,23 +97,30 @@ async function main() {
 
     // DEPLOY ISSUER_REGISTRY //
     // ------------------------------------------------------------------- //
-    const issuer_registry_mastercopy = await ISSUER_REGISTRY.connect(deployer).deploy();
-    await issuer_registry_mastercopy.connect(deployer).deployed();
+    let issuer_registry_mastercopy;
+    if (ISSER_REGISTRY_MASTERCOPY_ADDRESS.length > 0) {
+        issuer_registry_mastercopy = await ethers.getContractAt("PureFiIssuerRegistry", ISSER_REGISTRY_MASTERCOPY_ADDRESS);
+    } else {
+        console.log("Deploying new issuer registry...");
+        issuer_registry_mastercopy = await ISSUER_REGISTRY.connect(deployer).deploy();
+        await issuer_registry_mastercopy.connect(deployer).deployed();
+    }
 
-    console.log("ISSUER_REGISTRY_MASTERCOPY address : ", issuer_registry_mastercopy.address);
-    //await new Promise(resolve => setTimeout(resolve, 3000)); // 3 sec
-
-    const issuer_registry_proxy = await PPROXY.connect(deployer).deploy(issuer_registry_mastercopy.address, proxy_admin.address, "0x");
-    await issuer_registry_proxy.connect(deployer).deployed();
-
-    console.log("issuer_registry address : ", issuer_registry_proxy.address);
-    //await new Promise(resolve => setTimeout(resolve, 3000)); // 3 sec
+    console.log("ISSUER_REGISTRY Mastercopy address : ", issuer_registry_mastercopy.address);
+    let issuer_registry;
+    if (ISSER_REGISTRY_ADDRESS.length > 0) {
+        issuer_registry = await ethers.getContractAt("PureFiIssuerRegistry", ISSER_REGISTRY_ADDRESS);
+    } else {
+        console.log("Deploying new issuer proxy...");
+        const issuer_registry_proxy = await PPROXY.connect(deployer).deploy(issuer_registry_mastercopy.address, proxy_admin.address, "0x");
+        await issuer_registry_proxy.connect(deployer).deployed();
+        issuer_registry = await ethers.getContractAt("PureFiIssuerRegistry", issuer_registry_proxy.address);
+    }
+    console.log("issuer_registry address : ", issuer_registry.address);
 
     // initialize issuer_registry
-    const issuer_registry = await ethers.getContractAt("PureFiIssuerRegistry", issuer_registry_proxy.address);
-
+    
     await (await issuer_registry.connect(deployer).initialize(ADMIN)).wait();
-
     // set issuer
     await (await issuer_registry.connect(deployer).register(VALID_ISSUER_ADDRESS, PROOF)).wait(1);
     // DEPLOY WHITELIST // 
@@ -122,13 +130,11 @@ async function main() {
     await whitelist_mastercopy.deployed();
 
     console.log("whitelist_mastercopy address : ", whitelist_mastercopy.address);
-    //await new Promise(resolve => setTimeout(resolve, 3000)); // 3 sec
 
     const whitelist_proxy = await PPROXY.connect(deployer).deploy(whitelist_mastercopy.address, proxy_admin.address, "0x");
     await whitelist_proxy.connect(deployer).deployed();
 
     console.log("whitelist_proxy address : ", whitelist_proxy.address);
-    //await new Promise(resolve => setTimeout(resolve, 3000)); // 3 sec
 
     const whitelist = await ethers.getContractAt("PureFiWhitelist", whitelist_proxy.address);
 
@@ -143,13 +149,11 @@ async function main() {
     await verifier_mastercopy.connect(deployer).deployed();
 
     console.log("verifier_mastercopy address : ", verifier_mastercopy.address);
-    //await new Promise(resolve => setTimeout(resolve, 3000)); // 3 sec
 
     const verifier_proxy = await PPROXY.connect(deployer).deploy(verifier_mastercopy.address, proxy_admin.address, "0x");
     await verifier_proxy.connect(deployer).deployed();
 
     console.log("verifier_proxy address : ", verifier_proxy.address);
-    //await new Promise(resolve => setTimeout(resolve, 3000)); // 3 sec
 
     // initialize verifier
     const verifier = await ethers.getContractAt("PureFiVerifier", verifier_proxy.address);
@@ -176,7 +180,6 @@ async function main() {
     const token_buyer = await TOKEN_BUYER.connect(deployer).deploy();
     await token_buyer.connect(deployer).deployed();
     console.log("Token_buyer address :", token_buyer.address);
-    //await new Promise(resolve => setTimeout(resolve, 3000)); // 3 sec
 
     // DEPLOY SUBSCRIPTION_SERVICE // 
     // ------------------------------------------------------------------- //
@@ -185,14 +188,11 @@ async function main() {
     await sub_service_mastercopy.deployed();
 
     console.log("Subscription master copy : ", sub_service_mastercopy.address);
-    //await new Promise(resolve => setTimeout(resolve, 3000)); // 3 sec
 
     const sub_service_proxy = await PPROXY.connect(deployer).deploy(sub_service_mastercopy.address, proxy_admin.address, "0x");
     await sub_service_proxy.connect(deployer).deployed();
 
     console.log("Subscription service address : ", sub_service_proxy.address);
-    //await new Promise(resolve => setTimeout(resolve, 3000)); // 3 sec
-
     // initialize sub_service 
     const sub_service = await ethers.getContractAt("PureFiSubscriptionService", sub_service_proxy.address);
     await (await sub_service.connect(deployer).initialize(

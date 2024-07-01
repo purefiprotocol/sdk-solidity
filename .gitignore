@@ -9,6 +9,8 @@ build
 migrations*
 openzeppelin*
 .DS_store
+*env*
+*.lock
 
 chainlink/contracts/src/*
 !chainlink/contracts/src/v0.8

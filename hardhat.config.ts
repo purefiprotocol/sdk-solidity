@@ -17,41 +17,40 @@ const Infura = {
 };
 
 const config: HardhatUserConfig = {
-    solidity: {
-        version: "0.8.19",
-        settings: {
-            optimizer: {
-                enabled: true,
-                runs: 200
-            }
+  solidity: {
+      version: "0.8.25",
+      settings: {
+          optimizer: {
+              enabled: true,
+              runs: 200
+          }
+      }
+  },
+  networks: {
+    hardhat: {
+        forking: {
+            url: "https://arb-pokt.nodies.app"
         }
     },
-    networks: {
-        hardhat: {
-            forking: {
-                url: "https://sepolia-rollup.arbitrum.io/rpc"
-            }
-        },
-        sepolia: {
-            url: "https://ethereum-sepolia-rpc.publicnode.com"
-        },
-        arbitrumSepolia: {
-            url: 'https://sepolia-rollup.arbitrum.io/rpc',
-            chainId: 421614,
-            //accounts: [Sepolia_TESTNET_PRIVATE_KEY]
-        },
-        tbsc: {
-            url: "https://data-seed-prebsc-2-s1.bnbchain.org:8545"
-        },
-        arbitrum: {
-            url: "https://arbitrum.llamarpc.com"
-        },
-        optimism: {
-            url: "https://optimism-rpc.publicnode.com"
-        },
-        base: {
-            url: "https://base.llamarpc.com"
-        },
+    sepolia: {
+        url: "https://ethereum-sepolia-rpc.publicnode.com"
+    },
+    arbitrumSepolia: {
+        url: 'https://sepolia-rollup.arbitrum.io/rpc',
+        chainId: 421614,
+    },
+    tbsc: {
+        url: "https://data-seed-prebsc-2-s1.bnbchain.org:8545"
+    },
+    arbitrum: {
+        url: "https://arb-pokt.nodies.app"
+    },
+    optimism: {
+        url: "https://op-pokt.nodies.app"
+    },
+    base: {
+        url: "https://base-pokt.nodies.app"
+    },
     rinkeby: {
       url: Infura.Rinkeby,
       gas: 10000000,

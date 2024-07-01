@@ -15,8 +15,8 @@
     "@nomiclabs/hardhat-ethers": "^2.1.1",
     "@openzeppelin/hardhat-upgrades": "^1.21.0",
     "eth-crypto": "^2.4.0",
-    "ethers": "^5.7.1",
-    "hardhat": "^2.11.2",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.22.5",
     "hardhat-contract-sizer": "^2.6.1",
     "hardhat-storage-layout": "^0.1.7",
     "typescript": "^5.0.3"
