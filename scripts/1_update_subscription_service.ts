@@ -1,10 +1,14 @@
-import { ethers, upgrades} from "hardhat";
+import {ethers, upgrades} from "hardhat";
 import hre from "hardhat";
-import { BigNumber, utils } from "ethers";
+import {BigNumber, utils} from "ethers";
 
 //BSC
 // const PROXY_ADMIN = "0x3958341e490B8a8075F6C84de68563f3586840D9";
 // const SUBSCRIPTION_SERVICE = "0xBbC3Df0Af62b4a469DD44c1bc4e8804268dB1ea3";
+
+//const SUBSCRIPTION_SERVICE = "0xD08B8bb2154Eaf62460Bb8444DC824df5924d5Bd";
+const SUBSCRIPTION_SERVICE = "0xab071899f06d0C4ba8294A3451638e5d8f460B42";
+
 //MAINNET
 // const PROXY_ADMIN = "0x3f11558964F51Db1AF18825D0f4F8D7FC8bb6ac7";
 // const SUBSCRIPTION_SERVICE = "0xbA5B61DFa9c182E202354F66Cb7f8400484d7071";
@@ -16,44 +20,32 @@ import { BigNumber, utils } from "ethers";
 // const SUBSCRIPTION_SERVICE = "";
 
 
+const wallet = new hre.ethers.Wallet(process.env.PRIVATE_KEY as string, hre.ethers.provider);
+
+async function main() {
 
 
-async function main(){
-
-    const SubscriptionService = await ethers.getContractFactory("PureFiSubscriptionService");
-    const subServiceMasterCopy = await SubscriptionService.deploy();
-
-    let receipt = await subServiceMasterCopy.deployed();
-    console.log("deployer addr=",receipt.deployTransaction.from); 
-    console.log("SubscriptionService master copy address : ", subServiceMasterCopy.address);
+    console.log("deployer addr=", wallet.address);
 
     const subscriptionContractProxy = await ethers.getContractAt("PureFiSubscriptionService", SUBSCRIPTION_SERVICE);
 
-    console.log("Subscription service current version : ", await subscriptionContractProxy.version());
+    console.log("Subscription service current version : ", await subscriptionContractProxy.connect(wallet).version());
 
-    const proxyAdmin = await ethers.getContractAt("PProxyAdmin", PROXY_ADMIN);
-    
-    await(await proxyAdmin.upgrade(subscriptionContractProxy.address, subServiceMasterCopy.address )).wait();
-
-    console.log("Updated SubscriptionService version : ", await subscriptionContractProxy.version());
 
     //add business subscription
-     
-    let yearTS = 86400*365;
+
+    let yearTS = 86400 * 365;
     // const decimals = BigNumber.from(10).pow(18);
     // let USDdecimals = decimals;//10^18 // for current contract implementation
-    await(await subscriptionContractProxy.setTierData(20,yearTS,BigNumber.from(0),0,1,10)).wait();
+    //await (await subscriptionContractProxy.connect(wallet).setTierData(31n, yearTS, BigNumber.from(0), 100, 500, 500)).wait();
+    let externalSubscriberRole = await subscriptionContractProxy.connect(wallet).EXTERNAL_SUBSCRIBER();
+    await(await subscriptionContractProxy.connect(wallet).grantRole(externalSubscriberRole, wallet.address));
 
-    let externalSubscriberRole = await subscriptionContractProxy.EXTERNAL_SUBSCRIBER();
-    let myAddress = (await hre.ethers.getSigners())[0];
-    console.log("myAddress=",myAddress);
-    await subscriptionContractProxy.grantRole(externalSubscriberRole,myAddress);
-    // console.log("subscription added");
-
+    await (await subscriptionContractProxy.connect(wallet).subscribeFor(31n, "0x624a4AA4f0D19eDe4DdD5077dEBF98E96Bd6971f"));
+    hre.ethers.utils.getAddress();
 }
 
 main().catch((error) => {
     console.error(error);
     process.exitCode = 1;
-  });
-  
+});

@@ -193,31 +193,37 @@ contract PureFiSubscriptionService is AccessControlUpgradeable, AutomationCompat
        _subscribe(_tier, _subscriber);
     }
 
+
     function unsubscribe() external payable {
-        uint8 userSubscriptionTier = userSubscriptions[msg.sender].tier;
+        _unsubscribe(msg.sender);
+    }
+
+
+    function _unsubscribe(address _subscriber) internal {
+        uint8 userSubscriptionTier = userSubscriptions[_subscriber].tier;
         require(userSubscriptionTier > 0, "No subscription found");
-        uint256 timeSubscribed = block.timestamp - userSubscriptions[msg.sender].dateSubscribed;
+        uint256 timeSubscribed = block.timestamp - userSubscriptions[_subscriber].dateSubscribed;
         // round timeSubscribed up to month
         timeSubscribed = (1 + timeSubscribed / MONTH) * MONTH;
         // for expired subscriptions set subscribed time to initial tier duration.
         if (timeSubscribed > tiers[userSubscriptionTier].subscriptionDuration)
             timeSubscribed = tiers[userSubscriptionTier].subscriptionDuration;
 
-        uint256 totalProfit =  userSubscriptions[msg.sender].tokensDeposited * tiers[userSubscriptionTier].burnRatePercent / P100;
+        uint256 totalProfit =  userSubscriptions[_subscriber].tokensDeposited * tiers[userSubscriptionTier].burnRatePercent / P100;
         uint256 actualProfit = totalProfit * timeSubscribed  / tiers[userSubscriptionTier].subscriptionDuration; 
         
-        uint256 alreadyCollectedProfit = (lastProfitDistributedTimestamp > userSubscriptions[msg.sender].dateSubscribed) ? (totalProfit * (lastProfitDistributedTimestamp - userSubscriptions[msg.sender].dateSubscribed) / YEAR) : 0;        
+        uint256 alreadyCollectedProfit = (lastProfitDistributedTimestamp > userSubscriptions[_subscriber].dateSubscribed) ? (totalProfit * (lastProfitDistributedTimestamp - userSubscriptions[_subscriber].dateSubscribed) / YEAR) : 0;
 
         if(actualProfit > alreadyCollectedProfit){
             unrealizedProfit += actualProfit - alreadyCollectedProfit;
         }
-        ufiToken.safeTransfer(msg.sender, userSubscriptions[msg.sender].tokensDeposited - actualProfit);
-        removeUser(userSubscriptions[msg.sender].dateSubscribed, totalProfit);
+        ufiToken.safeTransfer(_subscriber, userSubscriptions[_subscriber].tokensDeposited - actualProfit);
+        removeUser(userSubscriptions[_subscriber].dateSubscribed, totalProfit);
         // remove the part of the lastProfitToDate that belongs to this user
-        if(lastProfitToDate > userSubscriptions[msg.sender].dateSubscribed)
+        if(lastProfitToDate > userSubscriptions[_subscriber].dateSubscribed)
             lastProfitToDate -= alreadyCollectedProfit;
-        delete userSubscriptions[msg.sender];
-        emit Unsubscribed(msg.sender, userSubscriptionTier, uint64(block.timestamp), actualProfit);
+        delete userSubscriptions[_subscriber];
+        emit Unsubscribed(_subscriber, userSubscriptionTier, uint64(block.timestamp), actualProfit);
     }
 
     function subsribeContract(address _contract, address _resolver) external {
