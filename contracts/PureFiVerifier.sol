@@ -17,7 +17,7 @@ contract PureFiVerifier is OwnableUpgradeable, ParamStorage, SignLib, IPureFiVer
   uint16 private constant PARAM_WHITELIST_ADDRESS = 8;
   uint16 private constant PARAM_CLEANING_TOLERANCE = 10;
 
-  mapping (uint256 => uint256) requestsProcessed; 
+  mapping (uint256 => uint256) public requestsProcessed;
 
   event PureFiPackageProcessed(address indexed caller, uint256 session);
   event PureFiStorageClear(address indexed caller, uint256 sessions_cleared);
@@ -36,10 +36,12 @@ contract PureFiVerifier is OwnableUpgradeable, ParamStorage, SignLib, IPureFiVer
     version 4000000:
     * introduced a check for msg.sender for verification that the caller contract matches receiver or sender in type2
     * added receiver field in type1 package
+    version 4000001:
+    * added public modifier to the requestsProcessed
     */
   function version() public pure returns(uint32){
     // 000.000.000 - Major.minor.internal
-    return 4000000;
+    return 4000001;
   }
 
   // IMPORTANT
