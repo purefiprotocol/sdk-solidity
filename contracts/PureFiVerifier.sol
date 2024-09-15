@@ -38,6 +38,8 @@ contract PureFiVerifier is OwnableUpgradeable, ParamStorage, SignLib, IPureFiVer
     * added receiver field in type1 package
     version 4000001:
     * added public modifier to the requestsProcessed
+    version 4000002:
+    * changed _decodePureFiPackage visibility modifier from private to public
     */
   function version() public pure returns(uint32){
     // 000.000.000 - Major.minor.internal
@@ -130,7 +132,7 @@ contract PureFiVerifier is OwnableUpgradeable, ParamStorage, SignLib, IPureFiVer
     return (package, encodedpackage);
   }
 
-  function _decodePureFiPackage(bytes memory _purefipackage) private pure returns (VerificationPackage memory package){
+  function _decodePureFiPackage(bytes memory _purefipackage) public pure returns (VerificationPackage memory package){
     uint8 packagetype = uint8(_purefipackage[31]);
     if(packagetype == 1){
       (, uint256 ruleID, uint256 sessionID, address sender, address receiver) = abi.decode(_purefipackage, (uint8, uint256, uint256, address, address));
