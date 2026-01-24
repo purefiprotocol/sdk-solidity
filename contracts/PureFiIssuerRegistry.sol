@@ -1,8 +1,4 @@
-//---------------------------------------------------
-// Copyright (c) 2020-2021 Union Protocol Foundation
-// SPDX-License-Identifier: GPL-2.0-or-later
-//---------------------------------------------------
-
+// SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0;
 
 import "../openzeppelin-contracts-upgradeable-master/contracts/access/AccessControlUpgradeable.sol";
